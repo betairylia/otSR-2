@@ -27,6 +27,10 @@
             image-rendering: pixelated;
         }
 
+        body{
+            margin: auto;
+        }
+
     </style>
 
 </head>
@@ -37,16 +41,18 @@
         </div>
     </div>
 
-    <input id="username"/>
-    <button id="find_me">Find</button>
-    <button id="clear">Clear</button>
+    <p style="width: 100%; display: flex; justify-content: center;">
+        <input id="username" style = "margin-right: 0.7em;"/>
+        <button id="find_me" style = "margin-right: 0.4em;">Find</button>
+        <button id="clear">Clear</button>
+    </p>
 
     <script>
         
         // set the dimensions and margins of the graph
         const margin = {top: 10, right: 30, bottom: 30, left: 60},
-            width = 1024 - margin.left - margin.right,
-            height = 1024 - margin.top - margin.bottom;
+            width = 880 - margin.left - margin.right,
+            height = 880 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
         const svg = d3.select("#my_dataviz")
@@ -192,7 +198,7 @@
                 });
         })
 
-        initZoom();
+        // initZoom();
 
     </script>
 </body>
