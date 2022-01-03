@@ -84,7 +84,9 @@
                     src = "data:image/png;base64, ${d.slow}" 
                     style = "width: 64px; height: 64px;" />
                     </p>
-                </div>`;
+                </div>
+                `;
+                // ${d.KDE}`;
         }
 
         let zoom = d3.zoom()
@@ -100,7 +102,7 @@
                 .call(zoom);
         }
 
-        d3.csv("./139_1k5.csv").then(function(data){
+        d3.csv("./139_1k5_dknorm.csv").then(function(data){
 
             console.log(data)
 
