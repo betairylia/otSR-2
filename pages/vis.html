@@ -1,0 +1,198 @@
+<head>
+    <title>BPM 170</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        div.tooltip {	
+            position: absolute;			
+            text-align: left;			
+            width: fit-content;					
+            height: fit-content;					
+            padding: 10px;
+            font: 12px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background: lightsteelblue;
+            border: 1px solid black;
+            border-radius: 4px;			
+            pointer-events: none;			
+        }
+
+        div.tooltip span.file
+        {
+            font-size: 11px;
+            color: darkslategrey;
+        }
+
+        div.tooltip img {
+            image-rendering: pixelated;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div id="my_dataviz" class="svg-container" style="width: fit-content;">
+        <div class="tooltip" style="top: 400px; left: 200px; opacity: 0;">
+            Hello
+        </div>
+    </div>
+
+    <input id="username"/>
+    <button id="find_me">Find</button>
+    <button id="clear">Clear</button>
+
+    <script>
+        
+        // set the dimensions and margins of the graph
+        const margin = {top: 10, right: 30, bottom: 30, left: 60},
+            width = 1024 - margin.left - margin.right,
+            height = 1024 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+        .append("svg")
+            .attr("id", "visualization")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", 
+                `translate(${margin.left}, ${margin.top})`);
+
+        var svgPosition = document.getElementById("visualization");
+
+        function getToolTip(d)
+        {
+            return `<strong>${d.Player}</strong>
+                <br/><span class="file">${d.file}</span>
+                <div style = "padding: 0; margin: 0; display: flex; flow-direction: row">
+                    <p style = "margin-right: 1em;">
+                        Fast<br/>
+                    <img 
+                    src = "data:image/png;base64, ${d.fast}" 
+                    style = "width: 64px; height: 64px;" />
+                    </p>
+                    
+                    <p>
+                        Slow<br/>
+                    <img 
+                    src = "data:image/png;base64, ${d.slow}" 
+                    style = "width: 64px; height: 64px;" />
+                    </p>
+                </div>`;
+        }
+
+        let zoom = d3.zoom()
+            .on('zoom', handleZoom);
+
+        function handleZoom(e) {
+            d3.select('svg g')
+                .attr('transform', e.transform);
+        }
+
+        function initZoom() {
+            d3.select('svg')
+                .call(zoom);
+        }
+
+        d3.csv("./139_1k5.csv").then(function(data){
+
+            console.log(data)
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([d3.min(data, function (d) { return Number(d['UMAP-x']) - 1; }), d3.max(data, function (d) { return Number(d['UMAP-x']) + 1; })])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([d3.min(data, function (d) { return Number(d['UMAP-y']) - 1; }), d3.max(data, function (d) { return Number(d['UMAP-y']) + 1; })])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            d3.select("#find_me").on("click", function(){
+
+                var userName = d3.select("#username").node().value;
+                var selected = d3.selectAll(`circle[player^='${userName}']`)
+
+                console.log(selected.data())
+
+                d3.selectAll(".dot")
+                .transition()
+                .duration(200)
+                .style("fill", "lightgrey")
+                .attr("r", 3)
+                // .attr("sel", 0)
+                .style("pointer-events", "none")
+                .style("opacity", 0.2)
+
+                selected
+                .transition()
+                .duration(200)
+                .style("fill", function (d) { return d['Color'] })
+                .attr("r", 7)
+                .style("pointer-events", "all")
+                .style("opacity", 1.0)
+
+            })
+
+            d3.select("#clear").on("click", function(){
+                d3.selectAll(".dot")
+                .transition()
+                .duration(200)
+                .style("fill", "#96c78c" )
+                // .style("fill", function (d) { return d['Color'] })
+                .attr("r", 3)
+                .style("pointer-events", "all")
+                .style("opacity", 0.85)
+            })
+
+            // Define the div for the tooltip
+            var div = d3.select("div.tooltip");
+
+            // Add dots
+            svg.append('g')
+                .selectAll("dot")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", function (d) { return "dot " + d['Player'] } )
+                .attr("player", function (d) { return d['Player'] } )
+                .attr("cx", function (d) { return x(d['UMAP-x']); } )
+                .attr("cy", function (d) { return y(d['UMAP-y']); } )
+                .attr("r", 3)
+                .style("pointer-events", "all")
+                // .style("fill", function (d) { return d['Color'] } )
+                .style("fill", "#96c78c" )
+                .style("stroke", "#333333ff")
+                .style("stroke-width", 0.6)
+                .style("opacity", 0.85)
+                .on("mouseover", function(evt, d) {
+                    // if(d3.select(this).attr("sel") < 1){return;}
+                    // const [x, y] = d3.pointer(evt);
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", 1.0);
+                    div.html(getToolTip(d))
+                        .style("left", evt.pageX).style("top", evt.pageY);
+                        // .style("top", )
+                })
+                .on("mousemove", function(evt, d){
+                    div.html(getToolTip(d))
+                        .style("left", evt.pageX).style("top", evt.pageY);
+                })
+                .on("mouseout", function(d) {		
+                    // if(d3.select(this).attr("sel") < 1){return;}
+                    div.transition()		
+                        .duration(500)		
+                        .style("opacity", 0);
+                });
+        })
+
+        initZoom();
+
+    </script>
+</body>
