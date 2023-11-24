@@ -1,8 +1,8 @@
 # osu!taiko playstyles
 
-This might be a heavy interactive visualization to load, and best viewed on some PC. I have only tested it on my machine with Chrome, so be warned that there must have some problems ... ;x;
+This is a **heavy** interactive visualization to load, and best viewed on some PC. I have only tested it on my machine with Chrome, so be warned that there must have some problems ... ;x;
 
-Most of top-1500 players in taiko mode are included. Some are not since I cannot download their replays ... sorry.
+Most of top-5000 players in taiko mode are included. Some are not since I cannot download their replays ... sorry.
 
 ------
 
@@ -10,7 +10,7 @@ Most of top-1500 players in taiko mode are included. Some are not since I cannot
 
 This is a simple visualization of some replays I have downloaded from the osu! website (taiko mode). This demo tries to analyze the playstyle from the replay, and the visualization plot is done in a specific way ([umap](https://umap-learn.readthedocs.io/en/latest/)), so that replays with similar "playstyle" (what so defined via my program) will stay close in the plot.
 
-Top-1500 players' best performance 1 & 2 have been plotted.
+Top-5000 players' best performance 1~8 have been plotted, but some (~20%?) of those replays are no longer available, so in that case the specific bp is ignored.
 
 Usage:
 
@@ -32,7 +32,7 @@ Precisely, a "playstyle", which is defined as a collection of two $4 \times 4$ m
 
 The time threshold is set to 107.91ms (= 1/4 note interval @ 139 BPM). This means if one is single-tapping 1/2s at 280BPM, it will be recorded into "fast" matrix.
 
-The column (left -> right) and rows (up -> down) in those matrices are arranged as `lK, lD, rK, rD`.
+The column (left -> right) and rows (up -> down) in those matrices are arranged as `lK, lD, rD, rK`.
 
 Some examples:
 
@@ -51,7 +51,7 @@ For those players the pattern mainly depends on their keybinds and some sub-play
 
 ![ddkk](ddkk.png)
 
-Finally a brief map I have made:
+Finally a brief map I have made (out-dated! I will update the map soon):
 
 ![map](map.png)
 
