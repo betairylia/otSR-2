@@ -1,0 +1,271 @@
+<head>
+    <title>BPM 170</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        div.tooltip {	
+            position: absolute;			
+            text-align: left;			
+            width: fit-content;					
+            height: fit-content;					
+            padding: 10px;
+            font: 12px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background: lightsteelblue;
+            border: 1px solid black;
+            border-radius: 4px;			
+            pointer-events: none;			
+        }
+
+        div.tooltip span.file
+        {
+            font-size: 11px;
+            color: darkslategrey;
+        }
+
+        div.tooltip img {
+            image-rendering: pixelated;
+        }
+
+        body{
+            margin: auto;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div id="my_dataviz" class="svg-container" style="width: fit-content;">
+        <canvas id="canvas" width="880px" height="880px"></canvas>
+        <div class="tooltip" style="top: 400px; left: 200px; opacity: 0;">
+            Hello
+        </div>
+    </div>
+
+    <p style="width: 100%; display: flex; justify-content: center;">
+        <input id="username" style = "margin-right: 0.7em;"/>
+        <button id="find_me" style = "margin-right: 0.4em;">Find</button>
+        <button id="clear">Clear</button>
+    </p>
+
+    <script>
+        
+        // // set the dimensions and margins of the graph
+        // const margin = {top: 10, right: 30, bottom: 30, left: 60},
+        //     width = 880 - margin.left - margin.right,
+        //     height = 880 - margin.top - margin.bottom;
+
+        // // append the svg object to the body of the page
+        // const svg = d3.select("#my_dataviz")
+        // .append("svg")
+        //     .attr("id", "visualization")
+        //     .attr("width", width + margin.left + margin.right)
+        //     .attr("height", height + margin.top + margin.bottom)
+        // .append("g")
+        //     .attr("transform", 
+        //         `translate(${margin.left}, ${margin.top})`);
+
+        // var svgPosition = document.getElementById("visualization");
+
+        function getToolTip(d)
+        {
+            return `<strong>${d.Player}</strong>
+                <br/><span class="file">${d.file}</span>
+                <div style = "padding: 0; margin: 0; display: flex; flow-direction: row">
+                    <p style = "margin-right: 1em;">
+                        Fast<br/>
+                    <img 
+                    src = "data:image/png;base64, ${d.fast}" 
+                    style = "width: 64px; height: 64px;" />
+                    </p>
+                    
+                    <p>
+                        Slow<br/>
+                    <img 
+                    src = "data:image/png;base64, ${d.slow}" 
+                    style = "width: 64px; height: 64px;" />
+                    </p>
+                </div>
+                `;
+                // ${d.KDE}`;
+        }
+
+        function findNearestPoint(data, x, y, mouseX, mouseY, userName) {
+            let minDistance = Infinity;
+            let nearestPoint = null;
+
+            for (const d of data) {
+                const dotX = x(d['UMAP-x']);
+                const dotY = y(d['UMAP-y']);
+
+                // Normal mode
+                let rad = dotSize;
+
+                // Search mode
+                if (userName !== undefined) {
+                    if (!d['Player'].startsWith(userName)) {
+                        continue;
+                    }
+                    rad = highlightDotSize;
+                }
+
+                const distanceSquared = (mouseX - dotX) ** 2 + (mouseY - dotY) ** 2;
+
+                if (distanceSquared <= rad ** 2 && distanceSquared < minDistance) {
+                    minDistance = distanceSquared;
+                    nearestPoint = d;
+                }
+            }
+
+            return nearestPoint;
+        }
+
+        function changeResolution(canvas, ctx, scaleFactor) {
+            // Set up CSS size.
+            canvas.style.width = canvas.style.width || canvas.width + 'px';
+            canvas.style.height = canvas.style.height || canvas.height + 'px';
+
+            // Resize canvas and scale future draws.
+            canvas.width = Math.ceil(canvas.width * scaleFactor);
+            canvas.height = Math.ceil(canvas.height * scaleFactor);
+            ctx.scale(scaleFactor, scaleFactor);
+        }
+
+        // let zoom = d3.zoom()
+        //     .on('zoom', handleZoom);
+
+        // function handleZoom(e) {
+        //     d3.select('svg g')
+        //         .attr('transform', e.transform);
+        // }
+
+        // function initZoom() {
+        //     d3.select('svg')
+        //         .call(zoom);
+        // }
+
+        // Define the div for the tooltip
+        var div = d3.select("div.tooltip");
+        prevHoveredDot = undefined;
+
+        dotSize = 3;
+        highlightDotSize = 5;
+
+        userName = undefined;
+
+        d3.csv("./test_new_dkTnorm.csv").then(function(data) {
+            console.log(data);
+
+            // Get canvas context
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([d3.min(data, d => Number(d['UMAP-x']) - 1), d3.max(data, d => Number(d['UMAP-x']) + 1)])
+                .range([0, canvas.width]);
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([d3.min(data, d => Number(d['UMAP-y']) - 1), d3.max(data, d => Number(d['UMAP-y']) + 1)])
+                .range([canvas.height, 0]);
+
+            // Get the device pixel ratio, falling back to 1 if unavailable
+            const devicePixelRatio = window.devicePixelRatio || 1;
+            changeResolution(canvas, context, devicePixelRatio)
+
+            // Add dots
+            data.forEach(d => {
+                context.beginPath();
+                context.arc(x(d['UMAP-x']), y(d['UMAP-y']), dotSize, 0, 2 * Math.PI);
+                context.fillStyle = "#96c78c";
+                context.strokeStyle = "#333333ff";
+                context.lineWidth = 0.6;
+                context.globalAlpha = 0.5;
+                context.fill();
+                context.stroke();
+            });
+
+            // Handle interaction
+            document.getElementById("find_me").addEventListener("click", function() {
+                userName = document.getElementById("username").value;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                data.forEach(d => {
+                    context.beginPath();
+                    if (d['Player'].startsWith(userName)) {
+                        context.arc(x(d['UMAP-x']), y(d['UMAP-y']), highlightDotSize, 0, 2 * Math.PI);
+                        context.fillStyle = d['Color'];
+                        context.globalAlpha = 1.0;
+                    } else {
+                        context.arc(x(d['UMAP-x']), y(d['UMAP-y']), 2, 0, 2 * Math.PI);
+                        context.fillStyle = "lightgrey";
+                        context.globalAlpha = 0.05;
+                    }
+                    context.strokeStyle = "#333333ff";
+                    context.lineWidth = 0.6;
+                    context.fill();
+                    context.stroke();
+                });
+            });
+
+            document.getElementById("clear").addEventListener("click", function() {
+                userName = undefined;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                data.forEach(d => {
+                    context.beginPath();
+                    context.arc(x(d['UMAP-x']), y(d['UMAP-y']), 3, 0, 2 * Math.PI);
+                    context.fillStyle = "#96c78c";
+                    context.strokeStyle = "#333333ff";
+                    context.lineWidth = 0.6;
+                    context.globalAlpha = 0.5;
+                    context.fill();
+                    context.stroke();
+                });
+            });
+
+            // Handle tooltip (you might want to implement this part as per your needs)
+            canvas.addEventListener("mousemove", function(evt) {
+                var rect = canvas.getBoundingClientRect();
+                var mouseX = evt.clientX - rect.left;
+                var mouseY = evt.clientY - rect.top;
+
+                // Check if mouse is over a point and show tooltip accordingly
+                // Implementing this part requires checking the mouse coordinates against the position of each point.
+                // You'll need to calculate the position of points based on the scales used for x and y.
+
+                // Check if mouse is over a point
+                hoveredDot = findNearestPoint(data, x, y, mouseX, mouseY, userName);
+
+                if(hoveredDot)
+                {
+                    if(prevHoveredDot == undefined)
+                    {
+                        div.transition()
+                            .duration(200)
+                            .style("opacity", 1.0);
+                    }
+                    div.html(getToolTip(hoveredDot))
+                        // .style("left", evt.pageX).style("top", evt.pageY);
+                        .style("left", 0).style("top", 0);
+                }
+                else if(hoveredDot == undefined)
+                {
+                    if(prevHoveredDot != undefined)
+                    {
+                        div.transition()
+                            .duration(200)
+                            .style("opacity", 0);
+                    }
+                }
+
+                prevHoveredDot = hoveredDot;
+            });
+        });
+
+
+        // initZoom();
+
+    </script>
+</body>

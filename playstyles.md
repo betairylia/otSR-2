@@ -4,9 +4,11 @@ This is a **heavy** interactive visualization to load, and best viewed on some P
 
 Most of top-5000 players in taiko mode are included. Some are not since I cannot download their replays ... sorry.
 
+Better viewed on a PC.
+
 ------
 
-<iframe width = "900" height = "920" scrolling = 'no' src = "./pages/vis.html"/>
+<iframe width = "900" height = "920" scrolling = 'no' src = "./pages/vis-canvas.html"/>
 
 This is a simple visualization of some replays I have downloaded from the osu! website (taiko mode). This demo tries to analyze the playstyle from the replay, and the visualization plot is done in a specific way ([umap](https://umap-learn.readthedocs.io/en/latest/)), so that replays with similar "playstyle" (what so defined via my program) will stay close in the plot.
 
