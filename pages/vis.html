@@ -102,7 +102,7 @@
                 .call(zoom);
         }
 
-        d3.csv("./139_1k5.csv").then(function(data){
+        d3.csv("./test_new_dkTnorm.csv").then(function(data){
 
             console.log(data)
 
@@ -129,17 +129,17 @@
                 console.log(selected.data())
 
                 d3.selectAll(".dot")
-                .transition()
-                .duration(200)
+                // .transition()
+                // .duration(200)
                 .style("fill", "lightgrey")
                 .attr("r", 3)
                 // .attr("sel", 0)
                 .style("pointer-events", "none")
-                .style("opacity", 0.2)
+                .style("opacity", 0.05)
 
                 selected
-                .transition()
-                .duration(200)
+                // .transition()
+                // .duration(200)
                 .style("fill", function (d) { return d['Color'] })
                 .attr("r", 7)
                 .style("pointer-events", "all")
@@ -149,13 +149,13 @@
 
             d3.select("#clear").on("click", function(){
                 d3.selectAll(".dot")
-                .transition()
-                .duration(200)
+                // .transition()
+                // .duration(200)
                 .style("fill", "#96c78c" )
                 // .style("fill", function (d) { return d['Color'] })
                 .attr("r", 3)
                 .style("pointer-events", "all")
-                .style("opacity", 0.85)
+                .style("opacity", 0.5)
             })
 
             // Define the div for the tooltip
@@ -177,12 +177,12 @@
                 .style("fill", "#96c78c" )
                 .style("stroke", "#333333ff")
                 .style("stroke-width", 0.6)
-                .style("opacity", 0.85)
+                .style("opacity", 0.5)
                 .on("mouseover", function(evt, d) {
                     // if(d3.select(this).attr("sel") < 1){return;}
                     // const [x, y] = d3.pointer(evt);
-                    div.transition()
-                        .duration(200)
+                    div //.transition()
+                        // .duration(200)
                         .style("opacity", 1.0);
                     div.html(getToolTip(d))
                         .style("left", evt.pageX).style("top", evt.pageY);
@@ -194,8 +194,8 @@
                 })
                 .on("mouseout", function(d) {		
                     // if(d3.select(this).attr("sel") < 1){return;}
-                    div.transition()		
-                        .duration(500)		
+                    div //.transition()		
+                        // .duration(500)		
                         .style("opacity", 0);
                 });
         })
