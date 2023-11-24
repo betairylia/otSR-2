@@ -8,7 +8,7 @@ Better viewed on a PC.
 
 ------
 
-<iframe width = "900" height = "920" scrolling = 'no' src = "./pages/vis-canvas.html"/>
+<iframe width = "900" height = "920" scrolling = 'no' src = "./pages/vis-canvas.html"></iframe>
 
 This is a simple visualization of some replays I have downloaded from the osu! website (taiko mode). This demo tries to analyze the playstyle from the replay, and the visualization plot is done in a specific way ([umap](https://umap-learn.readthedocs.io/en/latest/)), so that replays with similar "playstyle" (what so defined via my program) will stay close in the plot.
 
@@ -53,9 +53,9 @@ For those players the pattern mainly depends on their keybinds and some sub-play
 
 ![ddkk](ddkk.png)
 
-Finally a brief map I have made (out-dated! I will update the map soon):
+Finally a brief map I have made:
 
-![map](map.png)
+![map](map-new.png)
 
 which I don't have much confidence. So if you find something wrong / mislabeled, please feel free to let me know xDD
 
